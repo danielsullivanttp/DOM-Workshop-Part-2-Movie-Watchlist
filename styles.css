@@ -1,16 +1,103 @@
-/* Applied to the <li> when a movie is marked watched */
+body {
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem;
+  color: #1e293b;
+}
+
+#app {
+  max-width: 700px;
+  margin: 0 auto;
+}
+header {
+  text-align: center;
+  color: #fff;
+}
+#movie-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#movie-form input {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid #d6dbf5;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#add-btn {
+  padding: 0.6rem 1rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-btn,
+#clear-watched-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d6dbf5;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+#clear-watched-btn {
+  margin-left: auto;
+}
+#movie-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.movie-card {
+  display: flex;
+  justify-content: space-between;  /* info on left, buttons on right */
+  align-items: center;
+  background: #fff;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.movie-title { font-weight: 600; }
+.movie-genre { color: #64748b; margin-left: 0.5rem; font-size: 0.9rem; }
+
+.movie-actions { display: flex; gap: 0.5rem; }
+
+.watch-btn, .remove-btn {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.watch-btn { background: #10b981; color: #fff; }  /* green */
+.remove-btn { background: #f43f5e; color: #fff; }  /* red */
+/* JS toggles this on a card when "Mark Watched" is clicked */
 .watched {
   opacity: 0.5;
   text-decoration: line-through;
 }
 
-/* Applied to whichever filter button is currently active */
+/* JS moves this between filter buttons to show which is selected */
 .active-filter {
-  background-color: #1a1a2e;
-  color: white;
+  background-color: #6366f1;
+  color: #fff;
 }
 
-/* Applied to cards that don't match the current filter — hides them */
+/* JS adds this to cards that don't match the current filter */
 .filtered-out {
   display: none;
 }

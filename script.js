@@ -1,63 +1,151 @@
+// ---------- Phase 1: select elements ----------
 const appTitle = document.getElementById("app-title");
 const movieCount = document.getElementById("movie-count");
-
 const movieForm = document.getElementById("movie-form");
 const titleInput = document.getElementById("title-input");
 const genreInput = document.getElementById("genre-input");
-const movieList = document.getElementById("movie-list"); 
+const movieList = document.getElementById("movie-list");
 const clearWatchedBtn = document.getElementById("clear-watched-btn");
-// select #movie-form        → store in movieForm
-// select #title-input       → store in titleInput
-// select #genre-input       → store in genreInput
-// select #movie-list        → store in movieList
-// select #clear-watched-btn → store in clearWatchedBtn
+const filterBtns = document.querySelectorAll(".filter-btn");
 
-const filterBtns = document.querySelectorAll("#filter-btn");
-// select ALL elements with class "filter-btn" using querySelectorAll
-// store them in filterBtns — you'll loop over them in Phase 6
+let currentFilter = "all";
 
-console.log(movieForm);
-console.log(titleInput);
-console.log(genreInput);
-console.log(movieList);
-console.log(clearWatchedBtn);
+// ---------- Phase 3 + 4: add a movie ----------
+movieForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  const title = titleInput.value;
+  const genre = genreInput.value;
+  const card = createMovieCard(title, genre);
+  movieList.appendChild(card);
+  updateCount();
+  movieForm.reset();
+  console.log(title);
+  console.log(genre);
+});
 
-appTitle.textContent = "My Movie Watchlist"
+// ---------- Phase 4: build a card ----------
+function createMovieCard(title, genre) {
+  const li = document.createElement("li");
+  li.className = "movie-card";
+  li.setAttribute("data-genre", genre);
 
-// Read and log the current count text
-console.log("Count says:", movieCount.textContent)
+  const info = document.createElement("div");
+  info.className = "movie-info";
 
-// Update the count text manually (JavaScript will keep this accurate later)
-movieCount.textContent = "0 movies"
+  const titleSpan = document.createElement("span");
+  titleSpan.className = "movie-title";
+  titleSpan.textContent = title;
 
-// .add() puts a class on the element
-movieCount.classList.add("active-filter")
-// Look at the browser — what changed?
+  const genreSpan = document.createElement("span");
+  genreSpan.className = "movie-genre";
+  if (genre === "") {
+    genreSpan.textContent = "No genre";
+  } else {
+    genreSpan.textContent = genre;
+  }
 
-// .remove() takes it off
-movieCount.classList.remove("active-filter")
+  info.appendChild(titleSpan);
+  info.appendChild(genreSpan);
 
-// .toggle() adds if missing, removes if present — one call does both
-movieCount.classList.toggle("active-filter")
-movieCount.classList.toggle("active-filter")
+  const actions = document.createElement("div");
+  actions.className = "movie-actions";
 
-// getAttribute reads the HTML attribute as it was written in the file
-console.log(titleInput.getAttribute("placeholder"))  // → "Movie title..."
-console.log(titleInput.getAttribute("type"))         // → "text"
-console.log(titleInput.getAttribute("required"))     // → "" (empty string = it exists)
-// setAttribute changes or adds an attribute
+  const watchBtn = document.createElement("button");
+  watchBtn.className = "watch-btn";
+  watchBtn.textContent = "Mark Watched";
 
-titleInput.setAttribute("placeholder", "Try: The Matrix");
-// Refresh — the placeholder text in the input changed
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "remove-btn";
+  removeBtn.textContent = "Remove";
 
-// removeAttribute removes it entirely
-titleInput.removeAttribute("required");
-// The input is no longer required — blank submissions won't be blocked
-titleInput.setAttribute("value", "Fight Club");  // put it back
+  actions.appendChild(watchBtn);
+  actions.appendChild(removeBtn);
 
-console.log(titleInput.getAttribute("value"));  // → null (the HTML never had a value attribute)
-console.log(titleInput.value);
+  li.appendChild(info);
+  li.appendChild(actions);
 
-// What is the difference between getAttribute("value") and .value on an input?
-// getAttribute("value") → reads what is in the HTML file
-// .value → reads whatever the user typed right         
+  return li;
+}
+
+// ---------- Phase 5: card buttons ----------
+movieList.addEventListener("click", function (event) {
+  if (event.target.tagName !== "BUTTON") return;
+  const card = event.target.closest("li");
+
+  if (event.target.classList.contains("remove-btn")) {
+    card.remove();
+    updateCount();
+    applyFilter(currentFilter);
+  }
+
+  if (event.target.classList.contains("watch-btn")) {
+    card.classList.toggle("watched");
+    if (card.classList.contains("watched")) {
+      event.target.textContent = "Unmark Watched";
+    } else {
+      event.target.textContent = "Mark Watched";
+    }
+    applyFilter(currentFilter);
+  }
+});
+
+// ---------- Phase 6: count ----------
+function updateCount() {
+  const cards = document.querySelectorAll(".movie-card");
+  movieCount.textContent = cards.length + " movies";
+}
+
+// ---------- Phase 6: filters ----------
+function updateFilterButtons(activeFilter) {
+  filterBtns.forEach(function (btn) {
+    btn.classList.remove("active-filter");
+  });
+  document.getElementById("filter-" + activeFilter).classList.add("active-filter");
+}
+
+function applyFilter(filter) {
+  currentFilter = filter;
+  updateFilterButtons(filter);
+  const cards = document.querySelectorAll(".movie-card");
+  cards.forEach(function (card) {
+    if (filter === "all") {
+      card.classList.remove("filtered-out");
+    } else if (filter === "watched") {
+      if (card.classList.contains("watched")) {
+        card.classList.remove("filtered-out");
+      } else {
+        card.classList.add("filtered-out");
+      }
+    } else if (filter === "unwatched") {
+      if (card.classList.contains("watched")) {
+        card.classList.add("filtered-out");
+      } else {
+        card.classList.remove("filtered-out");
+      }
+    }
+  });
+}
+
+filterBtns.forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    const filterType = btn.id.replace("filter-", "");
+    applyFilter(filterType);
+  });
+});
+
+// ---------- Phase 6: clear watched ----------
+clearWatchedBtn.addEventListener("click", function () {
+  const watched = document.querySelectorAll(".movie-card.watched");
+  watched.forEach(function (card) {
+    card.remove();
+  });
+  updateCount();
+  applyFilter(currentFilter);
+});
+
+// getAttribute("value") reads the original value written in the HTML.
+// .value reads the current text the user typed into the input right now.
+
+// The listener is on the list, not each button, so it also works for cards
+// added later (event delegation). closest("li") walks up from the clicked
+// button to find the whole card it belongs to.
